@@ -23,6 +23,9 @@ const userSchema = mongoose.Schema({
   image: {
     type: String,
   },
+  emailVerifingCode: {
+    type: String,
+  },
   isAdmin: {
     type: Boolean,
     default: false,
@@ -69,7 +72,7 @@ userSchema.set("toJSON", {
 });
 
 userSchema.plugin(pagination);
-userSchema.plugin(mongooseAutoIncrement);
+userSchema.plugin(mongooseAutoIncrement.plugin, { model: "User", startAt: 1 });
 const User = mongoose.model("User", userSchema);
 
 exports.User = User;
