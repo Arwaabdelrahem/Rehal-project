@@ -23,8 +23,9 @@ const userSchema = mongoose.Schema({
   image: {
     type: String,
   },
-  emailVerifingCode: {
+  codeVerifing: {
     type: String,
+    required: false,
   },
   isAdmin: {
     type: Boolean,
