@@ -64,5 +64,5 @@ exports.deleteService = async (req, res, next) => {
     }
   }
   await service.delete();
-  res.status(200).send(cities);
+  res.status(204).send("deleted");
 };
