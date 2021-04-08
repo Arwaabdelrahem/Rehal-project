@@ -47,16 +47,14 @@ exports.Register = async (req, res, next) => {
   const { error } = register(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  let user = await User.findOne({ email: req.body.email });
-  if (user) return res.status(400).send("User already exists");
+  let user = await User.findOne({ "local.email": req.body.email });
+  if (user) return res.status(400).send("User with same email already exists");
 
   let img;
   if (req.files.length !== 0) {
     img = await cloud.cloudUpload(req.files[0].path);
     req.body.image = img.image;
   }
-
-  req.body.password = await bcrypt.hash(req.body.password, 10);
 
   var generator = new CodeGenerator();
   const code = generator.generateCodes("#+#+#+", 100)[0];
@@ -85,7 +83,15 @@ exports.Register = async (req, res, next) => {
   });
 
   req.body.codeVerifing = code;
-  user = new User(req.body);
+
+  user = new User({
+    method: "local",
+    local: {
+      name: req.body.name,
+      email: req.body.email,
+      password: await bcrypt.hash(req.body.password, 10),
+    },
+  });
   await user.save();
 
   if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
@@ -111,14 +117,19 @@ exports.LogIn = async (req, res, next) => {
   const { error } = logIn(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(400).send("Invalid email or password");
+  const user = await User.findOne({ "local.email": req.body.email });
+  if (!user) return res.status(404).send("Invalid email or password");
 
-  const compare = await bcrypt.compare(req.body.password, user.password);
-  if (!compare) return res.status(400).send("Invalid email or password");
+  const compare = await bcrypt.compare(req.body.password, user.local.password);
+  if (!compare) return res.status(404).send("Invalid email or password");
 
   const token = user.generateToken();
   res.status(200).send({ user, token });
+};
+
+exports.Oauth = async (req, res, next) => {
+  const token = req.user.generateToken();
+  res.status(200).send({ user: req.user, token });
 };
 
 exports.forgetPassword = async (req, res, next) => {

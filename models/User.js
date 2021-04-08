@@ -7,18 +7,18 @@ const mongooseAutoIncrement = require("mongoose-auto-increment");
 mongooseAutoIncrement.initialize(mongoose.connection);
 
 const userSchema = mongoose.Schema({
-  name: {
+  method: {
     type: String,
-    require: true,
+    enum: ["local", "google", "facebook"],
+    required: true,
   },
-  email: {
-    type: String,
-    require: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    require: true,
+  local: {
+    name: { type: String },
+    email: {
+      type: String,
+      lowercase: true,
+    },
+    password: { type: String },
   },
   image: {
     type: String,
@@ -30,6 +30,22 @@ const userSchema = mongoose.Schema({
   isAdmin: {
     type: Boolean,
     default: false,
+  },
+  google: {
+    id: { type: String },
+    name: { type: String },
+    email: {
+      type: String,
+      lowercase: true,
+    },
+  },
+  facebook: {
+    id: { type: String },
+    name: { type: String },
+    email: {
+      type: String,
+      lowercase: true,
+    },
   },
 });
 
@@ -59,18 +75,18 @@ userSchema.methods.generateToken = function () {
   return token;
 };
 
-userSchema.set("toJSON", {
-  virtuals: true,
-  transform: function (doc) {
-    return {
-      id: doc.id,
-      name: doc.name,
-      email: doc.email,
-      isAdmin: doc.isAdmin,
-      image: doc.image,
-    };
-  },
-});
+// userSchema.set("toJSON", {
+//   virtuals: true,
+//   transform: function (doc) {
+//     return {
+//       id: doc.id,
+//       name: doc.name,
+//       email: doc.email,
+//       isAdmin: doc.isAdmin,
+//       image: doc.image,
+//     };
+//   },
+// });
 
 userSchema.plugin(pagination);
 userSchema.plugin(mongooseAutoIncrement.plugin, { model: "User", startAt: 1 });
