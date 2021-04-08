@@ -3,6 +3,7 @@ const express = require("express");
 const user = require("../routes/users");
 const cities = require("../routes/cities");
 const services = require("../routes/services");
+const places = require("../routes/places");
 const { errorHandler, serverErrorHandler } = require("../middlewares/error");
 
 module.exports = function (app) {
@@ -13,6 +14,7 @@ module.exports = function (app) {
   app.use("/users", user);
   app.use("/cities", cities);
   app.use("/services", services);
+  app.use("/places", places);
   app.use(errorHandler);
   app.use(serverErrorHandler);
 };
