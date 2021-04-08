@@ -1,0 +1,45 @@
+const mongoose = require("mongoose");
+const pagination = require("mongoose-paginate-v2");
+const mongooseAutoIncrement = require("mongoose-auto-increment");
+
+mongooseAutoIncrement.initialize(mongoose.connection);
+
+const citySchema = mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  image: {
+    type: String,
+  },
+  postalCode: {
+    type: Number,
+    required: true,
+    unique: true,
+  },
+  services: [
+    {
+      type: Number,
+      ref: "Service",
+    },
+  ],
+});
+
+citySchema.set("toJSON", {
+  virtuals: true,
+  transform: function (doc) {
+    return {
+      id: doc.id,
+      name: doc.name,
+      postalCode: doc.postalCode,
+      services: doc.services,
+      image: doc.image,
+    };
+  },
+});
+
+citySchema.plugin(pagination);
+citySchema.plugin(mongooseAutoIncrement.plugin, { model: "City", startAt: 1 });
+
+const City = mongoose.model("City", citySchema);
+exports.City = City;
