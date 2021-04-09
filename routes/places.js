@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.get("/cities/:cityId", placeControllers.getPlacesInCity);
 router.get("/:placeId", placeControllers.getById);
+//TODO: fetch bestPlaces
+//TODO: fetch neartestPlaces
 router.post(
   "/new/cities/:cityId/services/:serviceId",
   multer,
