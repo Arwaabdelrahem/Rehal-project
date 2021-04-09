@@ -83,3 +83,29 @@ exports.React = async (req, res, next) => {
   await comment.save();
   res.status(200).send(comment);
 };
+
+exports.editComment = async (req, res, next) => {
+  let comment = await Comment.findById(req.params.commentId);
+  if (!comment) return res.status(404).send("Comment not found");
+
+  delete req.body.depth;
+  delete req.body.place;
+  delete req.body.author;
+
+  if (req.user._id !== comment.author)
+    return res.status(400).send("Only comment author can edit");
+
+  await comment.set(req.body).save();
+  res.status(200).send(comment);
+};
+
+exports.deleteComment = async (req, res, next) => {
+  let comment = await Comment.findById(req.params.commentId);
+  if (!comment) return res.status(404).send("Comment not found");
+
+  if (req.user._id !== comment.author)
+    return res.status(400).send("Only comment author can delete");
+
+  await comment.delete();
+  res.status(204).send("deleted");
+};

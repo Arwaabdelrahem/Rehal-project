@@ -15,12 +15,6 @@ const schema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    parents: [
-      {
-        type: Number,
-        ref: "Comment",
-      },
-    ],
     directParent: {
       type: Number,
       ref: "Comment",
