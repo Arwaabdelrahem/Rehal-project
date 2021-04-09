@@ -83,15 +83,9 @@ exports.Register = async (req, res, next) => {
   });
 
   req.body.codeVerifing = code;
+  req.body.password = await bcrypt.hash(req.body.password, 10);
 
-  user = new User({
-    method: "local",
-    local: {
-      name: req.body.name,
-      email: req.body.email,
-      password: await bcrypt.hash(req.body.password, 10),
-    },
-  });
+  user = new User(req.body);
   await user.save();
 
   if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
@@ -117,10 +111,10 @@ exports.LogIn = async (req, res, next) => {
   const { error } = logIn(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const user = await User.findOne({ "local.email": req.body.email });
+  const user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(404).send("Invalid email or password");
 
-  const compare = await bcrypt.compare(req.body.password, user.local.password);
+  const compare = await bcrypt.compare(req.body.password, user.password);
   if (!compare) return res.status(404).send("Invalid email or password");
 
   const token = user.generateToken();

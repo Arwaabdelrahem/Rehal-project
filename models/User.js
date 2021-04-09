@@ -7,18 +7,17 @@ const mongooseAutoIncrement = require("mongoose-auto-increment");
 mongooseAutoIncrement.initialize(mongoose.connection);
 
 const userSchema = mongoose.Schema({
-  method: {
+  name: {
     type: String,
-    enum: ["local", "google", "facebook"],
     required: true,
   },
-  local: {
-    name: { type: String },
-    email: {
-      type: String,
-      lowercase: true,
-    },
-    password: { type: String },
+  password: {
+    type: String,
+  },
+  email: {
+    type: String,
+    unique: true,
+    required: true,
   },
   image: {
     type: String,
@@ -30,22 +29,6 @@ const userSchema = mongoose.Schema({
   isAdmin: {
     type: Boolean,
     default: false,
-  },
-  google: {
-    id: { type: String },
-    name: { type: String },
-    email: {
-      type: String,
-      lowercase: true,
-    },
-  },
-  facebook: {
-    id: { type: String },
-    name: { type: String },
-    email: {
-      type: String,
-      lowercase: true,
-    },
   },
 });
 

@@ -12,16 +12,12 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        let user = await User.findOne({ "google.id": profile.id });
+        let user = await User.findOne({ email: profile.emails[0].value });
         if (user) return done(null, user);
 
         user = new User({
-          method: "google",
-          google: {
-            id: profile.id,
-            name: profile.displayName,
-            email: profile.emails[0].value,
-          },
+          name: profile.displayName,
+          email: profile.emails[0].value,
         });
 
         await user.save();
@@ -42,16 +38,12 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        let user = await User.findOne({ "facebook.id": profile.id });
+        let user = await User.findOne({ email: profile.emails[0].value });
         if (user) return done(null, user);
 
         user = new User({
-          method: "facebook",
-          facebook: {
-            id: profile.id,
-            name: profile.displayName,
-            email: profile.emails[0].value,
-          },
+          name: profile.displayName,
+          email: profile.emails[0].value,
         });
 
         await user.save();
