@@ -19,12 +19,6 @@ const placeSchema = mongoose.Schema({
   rating: {
     type: Number,
   },
-  comments: [
-    {
-      type: Number,
-      ref: "Comment",
-    },
-  ],
   city: {
     type: Number,
     ref: "City",
