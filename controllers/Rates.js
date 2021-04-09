@@ -7,6 +7,10 @@ exports.getAll = async (req, res, next) => {
     {
       select: "rating user place",
       sort: "-createdAt",
+      populate: [
+        { path: "user", select: "name" },
+        { path: "place", select: "name rating" },
+      ],
     }
   );
   res.status(200).send(rates);
@@ -53,7 +57,7 @@ exports.newRate = async (req, res, next) => {
   await place.save();
   await Rate.populate(rate, [
     { path: "user", select: "name" },
-    { path: " place", select: "name rating" },
+    { path: "place", select: "name rating" },
   ]);
   res.status(200).send(rate);
 };
