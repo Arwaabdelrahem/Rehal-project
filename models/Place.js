@@ -29,6 +29,7 @@ const placeSchema = mongoose.Schema({
     ref: "Service",
     required: true,
   },
+  media: [{ type: String }],
 });
 
 placeSchema.set("toJSON", {
@@ -43,6 +44,7 @@ placeSchema.set("toJSON", {
       service: doc.service,
       comments: doc.comments,
       image: doc.image,
+      media: doc.media,
     };
   },
 });

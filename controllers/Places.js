@@ -11,11 +11,26 @@ exports.getPlacesInCity = async (req, res, next) => {
   res.status(200).send(places);
 };
 
+// exports.bestPlaces = async (req, res, next) => {
+//   const city = await City.findById(req.params.cityId);
+//   if (!city) return res.status(404).send("City not found");
+
+//   const places = await Place.find({ city: req.params.cityId, rating: {$gt: } });
+//   res.status(200).send(city);
+// };
+
 exports.getById = async (req, res, next) => {
   const place = await Place.findById(req.params.placeId);
   if (!place) return res.status(404).send("Place not found");
 
   res.status(200).send(place);
+};
+
+exports.fetchMedia = async (req, res, next) => {
+  let place = await Place.findById(req.params.placeId);
+  if (!place) return res.status(404).send("Place not found");
+
+  res.status(200).send(place.media);
 };
 
 exports.newPlace = async (req, res, next) => {
@@ -33,6 +48,23 @@ exports.newPlace = async (req, res, next) => {
   await place.save();
   if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
   res.status(201).send(place);
+};
+
+exports.addMedia = async (req, res, next) => {
+  let place = await Place.findById(req.params.placeId);
+  if (!place) return res.status(404).send("Place not found");
+
+  let img;
+  if (req.files.length !== 0) {
+    img = await cloud.cloudUpload(req.files[0].path);
+    req.body.image = img.image;
+  }
+
+  place.media.push(req.body.image);
+  await place.save();
+
+  if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
+  res.status(200).send(place);
 };
 
 exports.editPlace = async (req, res, next) => {
