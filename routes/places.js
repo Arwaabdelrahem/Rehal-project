@@ -10,7 +10,6 @@ router.get("/:placeId", placeControllers.getById);
 router.get("/:placeId/media", placeControllers.fetchMedia);
 //TODO: fetch bestPlaces
 //TODO: fetch neartestPlaces
-//TODO: add place media {imgs , videos}
 router.post(
   "/new/cities/:cityId/services/:serviceId",
   multer,
