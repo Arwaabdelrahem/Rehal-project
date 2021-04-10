@@ -26,6 +26,12 @@ const userSchema = mongoose.Schema({
     type: String,
     required: false,
   },
+  savedPlaces: [
+    {
+      type: Number,
+      ref: "Place",
+    },
+  ],
   isAdmin: {
     type: Boolean,
     default: false,

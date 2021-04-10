@@ -72,7 +72,7 @@ exports.React = async (req, res, next) => {
   const react = _.findKey(comment.reactions, (r) => {
     if (r.user.toString() === req.user._id.toString()) return "index";
   });
-  console.log(react);
+
   if (react) {
     comment.reactions.splice(react, 1);
     await comment.save();

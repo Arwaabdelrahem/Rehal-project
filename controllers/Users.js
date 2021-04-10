@@ -4,6 +4,8 @@ const cloud = require("../startup/cloudinary");
 const nodemailer = require("nodemailer");
 const CodeGenerator = require("node-code-generator");
 const fs = require("fs");
+const { Place } = require("../models/Place");
+const _ = require("lodash");
 
 exports.profile = async (req, res, next) => {
   const user = await User.findOne({ email: req.user.email });
@@ -154,4 +156,23 @@ exports.changePassword = async (req, res, next) => {
   } catch (error) {
     res.status(400).send(error.message);
   }
+};
+
+exports.savePlaces = async (req, res, next) => {
+  let place = await Place.findById(req.params.placeId);
+  if (!place) return res.status(404).send("Place not found");
+
+  const saved = _.findKey(req.user.savedPlaces, (s) => {
+    if (s.toString() === place._id.toString()) return "index";
+  });
+
+  if (saved) {
+    req.user.savedPlaces.splice(saved, 1);
+    await req.user.save();
+    return res.status(200).send(req.user);
+  }
+
+  req.user.savedPlaces.push(place._id);
+  await req.user.save();
+  res.status(200).send(req.user);
 };

@@ -25,5 +25,6 @@ router.post(
   passport.authenticate("facebookToken", { session: false }),
   userController.Oauth
 );
+router.post("/savePlaces/:placeId", auth, userController.savePlaces);
 
 module.exports = router;
