@@ -84,14 +84,18 @@ exports.Register = async (req, res, next) => {
     }
   });
 
-  req.body.codeVerifing = code;
-  req.body.password = await bcrypt.hash(req.body.password, 10);
+  try {
+    req.body.codeVerifing = code;
+    req.body.password = await bcrypt.hash(req.body.password, 10);
 
-  user = new User(req.body);
-  await user.save();
+    user = new User(req.body);
+    await user.save();
 
-  if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
-  res.status(201).send(user);
+    if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
+    res.status(201).send(user);
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.verifyCode = async (req, res, next) => {
@@ -105,27 +109,35 @@ exports.verifyCode = async (req, res, next) => {
       res.status(200).send(user);
     }
   } catch (error) {
-    res.status(400).send(error.message);
+    next(error);
   }
 };
 
 exports.LogIn = async (req, res, next) => {
-  const { error } = logIn(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  try {
+    const { error } = logIn(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
 
-  const user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(404).send("Invalid email or password");
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(404).send("Invalid email or password");
 
-  const compare = await bcrypt.compare(req.body.password, user.password);
-  if (!compare) return res.status(404).send("Invalid email or password");
+    const compare = await bcrypt.compare(req.body.password, user.password);
+    if (!compare) return res.status(404).send("Invalid email or password");
 
-  const token = user.generateToken();
-  res.status(200).send({ user, token });
+    const token = user.generateToken();
+    res.status(200).send({ user, token });
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.Oauth = async (req, res, next) => {
-  const token = req.user.generateToken();
-  res.status(200).send({ user: req.user, token });
+  try {
+    const token = req.user.generateToken();
+    res.status(200).send({ user: req.user, token });
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.forgetPassword = async (req, res, next) => {
@@ -140,8 +152,7 @@ exports.forgetPassword = async (req, res, next) => {
       res.status(200).send({ msg: "Code sent", user });
     }
   } catch (error) {
-    console.log("catch");
-    res.status(400).send(error.message);
+    next(error);
   }
 };
 
@@ -154,7 +165,7 @@ exports.changePassword = async (req, res, next) => {
     req.user = await req.user.save();
     res.status(200).send(req.user);
   } catch (error) {
-    res.status(400).send(error.message);
+    next(error);
   }
 };
 
@@ -166,13 +177,51 @@ exports.savePlaces = async (req, res, next) => {
     if (s.toString() === place._id.toString()) return "index";
   });
 
-  if (saved) {
-    req.user.savedPlaces.splice(saved, 1);
+  try {
+    if (saved) {
+      req.user.savedPlaces.splice(saved, 1);
+      await req.user.save();
+      return res.status(200).send(req.user);
+    }
+
+    req.user.savedPlaces.push(place._id);
     await req.user.save();
-    return res.status(200).send(req.user);
+    res.status(200).send(req.user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.editProfile = async (req, res, next) => {
+  if (req.user._id.toString() !== req.params.id.toString())
+    return res.status(403).send("Forbidden");
+
+  let img;
+  if (req.files.length !== 0) {
+    img = await cloud.cloudUpload(req.files[0].path);
+    req.body.image = img.image;
   }
 
-  req.user.savedPlaces.push(place._id);
-  await req.user.save();
-  res.status(200).send(req.user);
+  delete req.body.isAdmin;
+  delete req.body.codeVerifing;
+  try {
+    await req.user.set(req.body).save();
+
+    if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
+    res.status(200).send(req.user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteAccount = async (req, res, next) => {
+  if (req.user._id.toString() !== req.params.id.toString())
+    return res.status(403).send("Forbidden");
+
+  try {
+    await req.user.delete();
+    res.status(204).json();
+  } catch (error) {
+    next(error);
+  }
 };

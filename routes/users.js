@@ -26,5 +26,7 @@ router.post(
   userController.Oauth
 );
 router.post("/savePlaces/:placeId", auth, userController.savePlaces);
+router.put("/edit/:id", auth, multer, userController.editProfile);
+router.delete("/delete/:id", auth, userController.deleteAccount);
 
 module.exports = router;
