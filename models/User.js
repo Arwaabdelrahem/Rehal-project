@@ -32,6 +32,20 @@ const userSchema = mongoose.Schema({
       ref: "Place",
     },
   ],
+  location: {
+    type: {
+      type: String,
+      default: "Point",
+      required: true,
+    },
+    coordinates: [
+      // long came 1st
+      {
+        type: Number,
+        required: true,
+      },
+    ],
+  },
   isAdmin: {
     type: Boolean,
     default: false,

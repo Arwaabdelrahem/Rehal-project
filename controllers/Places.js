@@ -1,7 +1,10 @@
 const { Place } = require("../models/Place");
 const cloud = require("../startup/cloudinary");
 const fs = require("fs");
+const https = require("https");
 const { City } = require("../models/City");
+const { Service } = require("../models/Service");
+const _ = require("lodash");
 
 exports.getPlacesInCity = async (req, res, next) => {
   const city = await City.findById(req.params.cityId);
@@ -31,6 +34,70 @@ exports.fetchMedia = async (req, res, next) => {
   if (!place) return res.status(404).send("Place not found");
 
   res.status(200).send(place.media);
+};
+
+exports.nearestPlaces = async (req, res, next) => {
+  const user = req.user;
+
+  const service = await Service.findById(req.params.serviceId);
+  if (!service) return res.status(404).send("Service not found");
+
+  const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${user.location.coordinates[0]},${user.location.coordinates[1]}&radius=1500&type=${service.name}&key=${process.env.GOOGLE_PLACES_API_KEY}`;
+
+  try {
+    https
+      .get(url, (response) => {
+        let body = "";
+        response.on("data", (chunk) => {
+          body += chunk;
+        });
+        response.on("end", () => {
+          let places = JSON.parse(body);
+          const locations = places.results;
+          res.status(200).json(locations);
+        });
+      })
+      .on("error", () => {
+        console.log("error occured");
+      });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.searchPlaces = async (req, res, next) => {
+  const user = req.user;
+
+  const service = await Service.findById(req.params.serviceId);
+  if (!service) return res.status(404).send("Service not found");
+
+  const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${user.location.coordinates[0]},${user.location.coordinates[1]}&radius=1500&type=${service.name}&key=${process.env.GOOGLE_PLACES_API_KEY}`;
+  try {
+    https.get(url, (response) => {
+      let body = "";
+      response.on("data", (chunk) => {
+        body += chunk;
+      });
+      response.on("end", () => {
+        let places = JSON.parse(body);
+        const locations = places.results;
+
+        for (const i in locations) {
+          if (
+            locations[i].name
+              .toLowerCase()
+              .includes(req.body.query.toLowerCase())
+          ) {
+            return res.status(200).json(locations[i]);
+          } else {
+            return res.status(400).send("Smth went wrong, Please try again");
+          }
+        }
+      });
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.newPlace = async (req, res, next) => {
