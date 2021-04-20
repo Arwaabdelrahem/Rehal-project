@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const pagination = require("mongoose-paginate-v2");
 const mongooseAutoIncrement = require("mongoose-auto-increment");
+const notificationService = require("../services/notification");
 
 mongooseAutoIncrement.initialize(mongoose.connection);
 
@@ -46,6 +47,22 @@ const userSchema = mongoose.Schema({
       },
     ],
   },
+  pushTokens: [
+    new mongoose.Schema(
+      {
+        deviceType: {
+          type: String,
+          enum: ["android", "ios", "web"],
+          required: true,
+        },
+        deviceToken: {
+          type: String,
+          required: true,
+        },
+      },
+      { _id: false }
+    ),
+  ],
   isAdmin: {
     type: Boolean,
     default: false,
@@ -78,18 +95,40 @@ userSchema.methods.generateToken = function () {
   return token;
 };
 
-// userSchema.set("toJSON", {
-//   virtuals: true,
-//   transform: function (doc) {
-//     return {
-//       id: doc.id,
-//       name: doc.name,
-//       email: doc.email,
-//       isAdmin: doc.isAdmin,
-//       image: doc.image,
-//     };
-//   },
-// });
+userSchema.methods.sendNotification = async function (message) {
+  let changed = false;
+  let len = this.pushTokens.length;
+  while (len--) {
+    const deviceToken = this.pushTokens[len].deviceToken;
+    try {
+      console.log("1");
+      await notificationService.sendNotification(deviceToken, message);
+      console.log("2");
+    } catch (error) {
+      // console.log(error);
+      this.pushTokens.splice(len, 1);
+      changed = true;
+    }
+  }
+  if (changed) await this.save();
+};
+
+userSchema.set("toJSON", {
+  virtuals: true,
+  transform: function (doc) {
+    return {
+      id: doc.id,
+      name: doc.name,
+      email: doc.email,
+      isAdmin: doc.isAdmin,
+      codeVerifing: doc.codeVerifing,
+      image: doc.image,
+      savedPlaces: doc.savedPlaces,
+      pushTokens: doc.pushTokens,
+      location: doc.location,
+    };
+  },
+});
 
 userSchema.plugin(pagination);
 userSchema.plugin(mongooseAutoIncrement.plugin, { model: "User", startAt: 1 });

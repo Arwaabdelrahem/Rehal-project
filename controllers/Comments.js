@@ -1,6 +1,8 @@
 const { Place } = require("../models/Place");
 const { Comment } = require("../models/Comment");
 const _ = require("lodash");
+const { User } = require("../models/User");
+const { Notification } = require("../models/Notification");
 
 exports.fetchComment = async (req, res, next) => {
   let place, comment, type;
@@ -81,7 +83,32 @@ exports.React = async (req, res, next) => {
 
   comment.reactions.push(reaction);
   await comment.save();
-  res.status(200).send(comment);
+
+  try {
+    // Send Notification in-app
+    const clients = await User.find({ _id: comment.author });
+    const targetUsers = clients.map((user) => user.id);
+    const notification = await new Notification({
+      title: "Rehal",
+      body: `${req.user.name} reacted to your comment.`,
+      user: req.user._id,
+      targetUsers: targetUsers,
+      subjectType: "Comment",
+      subject: comment._id,
+    }).save();
+
+    // push notifications
+    const receivers = clients;
+    for (let i = 0; i < receivers.length; i++) {
+      await receivers[i].sendNotification(
+        notification.toFirebaseNotification()
+      );
+    }
+
+    res.status(200).send(comment);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 exports.editComment = async (req, res, next) => {

@@ -49,7 +49,7 @@ schema.set("toJSON", {
   transform: function (doc) {
     return {
       id: doc.id,
-      course: doc.course,
+      place: doc.place,
       kind: doc.kind,
       author: doc.author,
       content: doc.content,

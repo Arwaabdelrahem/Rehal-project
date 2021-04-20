@@ -6,6 +6,7 @@ const services = require("../routes/services");
 const places = require("../routes/places");
 const comments = require("../routes/comments");
 const rates = require("../routes/rates");
+const notifications = require("../routes/notifications");
 const { errorHandler, serverErrorHandler } = require("../middlewares/error");
 
 module.exports = function (app) {
@@ -19,6 +20,7 @@ module.exports = function (app) {
   app.use("/places", places);
   app.use("/comments", comments);
   app.use("/rates", rates);
+  app.use("/notifications", notifications);
   app.use(errorHandler);
   app.use(serverErrorHandler);
 };
