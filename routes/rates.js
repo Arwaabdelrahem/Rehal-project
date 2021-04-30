@@ -4,6 +4,6 @@ const auth = require("../middlewares/auth");
 const router = express.Router();
 
 router.get("/places/:placeId", rateController.getAll);
-router.post("/new/:placeId", auth, rateController.newRate);
+router.post("/new/places/:placeId", auth, rateController.newRate);
 
 module.exports = router;
