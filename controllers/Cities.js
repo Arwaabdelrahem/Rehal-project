@@ -1,6 +1,7 @@
 const { City } = require("../models/City");
 const cloud = require("../startup/cloudinary");
 const fs = require("fs");
+const _ = require("lodash");
 const { Service } = require("../models/Service");
 
 exports.getAll = async (req, res, next) => {
@@ -16,9 +17,7 @@ exports.getCity = async (req, res, next) => {
 };
 
 exports.cityServices = async (req, res, next) => {
-  let city = await City.findById(req.params.cityId).populate([
-    { path: "services", select: "name" },
-  ]);
+  let city = await City.findById(req.params.cityId);
   if (!city) return res.status(404).send("City not found");
 
   res.status(200).send(city.services);
@@ -48,12 +47,13 @@ exports.addServiceToCity = async (req, res, next) => {
   let service = await Service.findById(req.params.serviceId);
   if (!service) return res.status(404).send("Service not found");
 
-  if (city.services.indexOf(req.params.serviceId) !== -1)
-    return res.status(400).send("Service already exists");
+  const exist = _.findKey(city.services, (s) => {
+    if (s._id.toString() === service._id.toString()) return "index";
+  });
+  if (exist) return res.status(400).send("Service already exists");
 
   city.services.push(service._id);
   await city.save();
-  await City.populate(city, [{ path: "services", select: "name" }]);
   res.status(200).send(city);
 };
 
