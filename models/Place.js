@@ -30,6 +30,20 @@ const placeSchema = mongoose.Schema({
     required: true,
   },
   media: [{ type: String }],
+  location: {
+    type: {
+      type: String,
+      default: "Point",
+      required: true,
+    },
+    coordinates: [
+      // long came 1st
+      {
+        type: Number,
+        required: true,
+      },
+    ],
+  },
 });
 
 placeSchema.set("toJSON", {
@@ -45,11 +59,14 @@ placeSchema.set("toJSON", {
       comments: doc.comments,
       image: doc.image,
       media: doc.media,
+      location: doc.location,
     };
   },
 });
 
+placeSchema.index({ location: "2dsphere" });
 placeSchema.plugin(pagination);
+
 placeSchema.plugin(mongooseAutoIncrement.plugin, {
   model: "Place",
   startAt: 1,
