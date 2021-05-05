@@ -22,13 +22,13 @@ exports.sendCode = async (req, res, next) => {
   var transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "arwaabdelrahem2@gmail.com",
+      user: "apprehal@gmail.com",
       pass: process.env.PASSWORD,
     },
   });
 
   var mailOptions = {
-    from: "arwaabdelrahem2@gmail.com",
+    from: "apprehal@gmail.com",
     to: req.body.email,
     subject: "Verfication Code",
     text: `Reset password code ${code}`,
@@ -64,13 +64,13 @@ exports.Register = async (req, res, next) => {
   var transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "arwaabdelrahem2@gmail.com",
+      user: "apprehal@gmail.com",
       pass: process.env.PASSWORD,
     },
   });
 
   var mailOptions = {
-    from: "arwaabdelrahem2@gmail.com",
+    from: "apprehal@gmail.com",
     to: req.body.email,
     subject: "Verfication Code",
     text: `your verfication code ${code}`,
