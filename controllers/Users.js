@@ -8,8 +8,12 @@ const { Place } = require("../models/Place");
 const _ = require("lodash");
 
 exports.profile = async (req, res, next) => {
-  const user = await User.findOne({ email: req.user.email });
-  res.status(200).send(user);
+  try {
+    const user = await User.findOne({ email: req.user.email });
+    res.status(200).send(user);
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.sendCode = async (req, res, next) => {
@@ -141,10 +145,10 @@ exports.Oauth = async (req, res, next) => {
 };
 
 exports.forgetPassword = async (req, res, next) => {
-  let user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(404).send("Invalid email");
-
   try {
+    let user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(404).send("Invalid email");
+
     if (user.codeVerifing === req.body.code) {
       user.password = await bcrypt.hash(req.body.newPassword, 10);
       user.codeVerifing = "";
@@ -157,10 +161,13 @@ exports.forgetPassword = async (req, res, next) => {
 };
 
 exports.changePassword = async (req, res, next) => {
-  const compare = await bcrypt.compare(req.body.oldPassword, req.user.password);
-  if (!compare) return res.status(400).send("Incorrect password");
-
   try {
+    const compare = await bcrypt.compare(
+      req.body.oldPassword,
+      req.user.password
+    );
+    if (!compare) return res.status(400).send("Incorrect password");
+
     req.user.password = await bcrypt.hash(req.body.newPassword, 10);
     req.user = await req.user.save();
     res.status(200).send(req.user);
@@ -170,14 +177,14 @@ exports.changePassword = async (req, res, next) => {
 };
 
 exports.savePlaces = async (req, res, next) => {
-  let place = await Place.findById(req.params.placeId);
-  if (!place) return res.status(404).send("Place not found");
-
-  const saved = _.findKey(req.user.savedPlaces, (s) => {
-    if (s.toString() === place._id.toString()) return "index";
-  });
-
   try {
+    let place = await Place.findById(req.params.placeId);
+    if (!place) return res.status(404).send("Place not found");
+
+    const saved = _.findKey(req.user.savedPlaces, (s) => {
+      if (s.toString() === place._id.toString()) return "index";
+    });
+
     if (saved) {
       req.user.savedPlaces.splice(saved, 1);
       await req.user.save();
@@ -193,18 +200,19 @@ exports.savePlaces = async (req, res, next) => {
 };
 
 exports.editProfile = async (req, res, next) => {
-  if (req.user._id.toString() !== req.params.id.toString())
-    return res.status(403).send("Forbidden");
-
-  let img;
-  if (req.files.length !== 0) {
-    img = await cloud.cloudUpload(req.files[0].path);
-    req.body.image = img.image;
-  }
-
-  delete req.body.isAdmin;
-  delete req.body.codeVerifing;
   try {
+    if (req.user._id.toString() !== req.params.id.toString())
+      return res.status(403).send("Forbidden");
+
+    let img;
+    if (req.files.length !== 0) {
+      img = await cloud.cloudUpload(req.files[0].path);
+      req.body.image = img.image;
+    }
+
+    delete req.body.isAdmin;
+    delete req.body.codeVerifing;
+
     await req.user.set(req.body).save();
 
     if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);

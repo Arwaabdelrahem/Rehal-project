@@ -5,26 +5,27 @@ const { User } = require("../models/User");
 exports.fetchAll = async (req, res, next) => {
   const user = req.user;
   //paginate
-  // in case of non-paginate
-  req.allowPagination = false;
-  let notifications = await Notification.find({
+  let notifications = await Notification.paginate({
     targetUsers: { $in: [user.id] },
   })
     .sort("-createdAt")
     .populate("subject");
 
-  const collection = req.allowPagination ? notifications.docs : notifications;
-  console.log(notifications.docs);
-  console.log(notifications);
-  for (let i = 0; i < collection.length; i++) {
-    let notification = _.cloneDeep(collection[i]);
+  try {
+    const collection = notifications;
+    console.log(notifications);
+    for (let i = 0; i < collection.length; i++) {
+      let notification = _.cloneDeep(collection[i]);
 
-    if (notification.seen) continue;
-    notification.seen = true;
-    await notification.save();
+      if (notification.seen) continue;
+      notification.seen = true;
+      await notification.save();
+    }
+
+    return res.status(200).json(notifications);
+  } catch (error) {
+    next(error);
   }
-
-  return res.status(200).json(notifications);
 };
 
 exports.numberOfUnSeen = async (req, res, next) => {
@@ -79,18 +80,23 @@ exports.unsubscribe = async (req, res, next) => {
   const user = req.user;
 
   const token = req.body.token;
-  if (token) {
-    const index = _.findKey(
-      user.pushTokens,
-      _.matchesProperty("deviceToken", token)
-    );
-    if (index !== undefined) {
-      user.pushTokens.splice(index, 1);
-      await user.save();
-    }
-  }
 
-  return res.status(200).json(user);
+  try {
+    if (token) {
+      const index = _.findKey(
+        user.pushTokens,
+        _.matchesProperty("deviceToken", token)
+      );
+      if (index !== undefined) {
+        user.pushTokens.splice(index, 1);
+        await user.save();
+      }
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.sendToAll = async (req, res, next) => {

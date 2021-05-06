@@ -8,58 +8,66 @@ exports.fetchComment = async (req, res, next) => {
   let place, comment, type;
   const path = req.route.path.split("/");
 
-  if (path[1] === "places") {
-    type = "comment";
-    place = await Place.findById(req.params.placeId);
-    if (!place) return res.status(404).send("Place not found");
-  } else {
-    type = "reply";
-    comment = await Comment.findById(req.params.commentId).populate("reply");
-    if (!comment) return res.status(404).send("Comment not found");
+  try {
+    if (path[1] === "places") {
+      type = "comment";
+      place = await Place.findById(req.params.placeId);
+      if (!place) return res.status(404).send("Place not found");
+    } else {
+      type = "reply";
+      comment = await Comment.findById(req.params.commentId).populate("reply");
+      if (!comment) return res.status(404).send("Comment not found");
 
-    return res.status(200).send(comment.reply);
+      return res.status(200).send(comment.reply);
+    }
+
+    const comments = await Comment.find({
+      place: req.params.placeId,
+      depth: type === "comment" ? 0 : comment.depth + 1,
+      directParent: type === "comment" ? null : comment.id,
+    });
+    res.status(200).send(comments);
+  } catch (error) {
+    next(error);
   }
-
-  const comments = await Comment.find({
-    place: req.params.placeId,
-    depth: type === "comment" ? 0 : comment.depth + 1,
-    directParent: type === "comment" ? null : comment.id,
-  });
-  res.status(200).send(comments);
 };
 
 exports.newComment = async (req, res, next) => {
   let place, comment, type;
   const path = req.route.path.split("/");
 
-  if (path[2] === "places") {
-    type = "comment";
-    place = await Place.findById(req.params.placeId);
-    if (!place) return res.status(404).send("Place not found");
-  } else {
-    type = "reply";
-    comment = await Comment.findById(req.params.commentId);
-    if (!comment) return res.status(404).send("Comment not found");
-  }
+  try {
+    if (path[2] === "places") {
+      type = "comment";
+      place = await Place.findById(req.params.placeId);
+      if (!place) return res.status(404).send("Place not found");
+    } else {
+      type = "reply";
+      comment = await Comment.findById(req.params.commentId);
+      if (!comment) return res.status(404).send("Comment not found");
+    }
 
-  let newComment = new Comment({
-    place: type === "comment" ? req.params.placeId : comment.place,
-    depth: type === "comment" ? 0 : comment.depth + 1,
-    directParent: type === "comment" ? null : comment.id,
-    parents: [
-      ...(type !== "comment" ? [comment.id] : []),
-      ...(type === "reply" ? comment.parents : []),
-    ],
-    author: req.user.id,
-    content: req.body.content,
-  });
+    let newComment = new Comment({
+      place: type === "comment" ? req.params.placeId : comment.place,
+      depth: type === "comment" ? 0 : comment.depth + 1,
+      directParent: type === "comment" ? null : comment.id,
+      parents: [
+        ...(type !== "comment" ? [comment.id] : []),
+        ...(type === "reply" ? comment.parents : []),
+      ],
+      author: req.user.id,
+      content: req.body.content,
+    });
 
-  await newComment.save();
-  if (type !== "comment") {
-    req.body.reply = comment.reply.push(newComment._id);
-    await comment.save();
+    await newComment.save();
+    if (type !== "comment") {
+      req.body.reply = comment.reply.push(newComment._id);
+      await comment.save();
+    }
+    res.status(201).send(newComment);
+  } catch (error) {
+    next(error);
   }
-  res.status(201).send(newComment);
 };
 
 exports.React = async (req, res, next) => {
@@ -71,20 +79,20 @@ exports.React = async (req, res, next) => {
     flavor: req.body.flavor,
   };
 
-  const react = _.findKey(comment.reactions, (r) => {
-    if (r.user.toString() === req.user._id.toString()) return "index";
-  });
-
-  if (react) {
-    comment.reactions.splice(react, 1);
-    await comment.save();
-    return res.status(200).send(comment);
-  }
-
-  comment.reactions.push(reaction);
-  await comment.save();
-
   try {
+    const react = _.findKey(comment.reactions, (r) => {
+      if (r.user.toString() === req.user._id.toString()) return "index";
+    });
+
+    if (react) {
+      comment.reactions.splice(react, 1);
+      await comment.save();
+      return res.status(200).send(comment);
+    }
+
+    comment.reactions.push(reaction);
+    await comment.save();
+
     // Send Notification in-app
     const clients = await User.find({ _id: comment.author });
     const targetUsers = clients.map((user) => user.id);
@@ -115,24 +123,32 @@ exports.editComment = async (req, res, next) => {
   let comment = await Comment.findById(req.params.commentId);
   if (!comment) return res.status(404).send("Comment not found");
 
-  delete req.body.depth;
-  delete req.body.place;
-  delete req.body.author;
+  try {
+    delete req.body.depth;
+    delete req.body.place;
+    delete req.body.author;
 
-  if (req.user._id !== comment.author)
-    return res.status(400).send("Only comment author can edit");
+    if (req.user._id !== comment.author)
+      return res.status(400).send("Only comment author can edit");
 
-  await comment.set(req.body).save();
-  res.status(200).send(comment);
+    await comment.set(req.body).save();
+    res.status(200).send(comment);
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.deleteComment = async (req, res, next) => {
   let comment = await Comment.findById(req.params.commentId);
   if (!comment) return res.status(404).send("Comment not found");
 
-  if (req.user._id !== comment.author)
-    return res.status(400).send("Only comment author can delete");
+  try {
+    if (req.user._id !== comment.author)
+      return res.status(400).send("Only comment author can delete");
 
-  await comment.delete();
-  res.status(204).send("deleted");
+    await comment.delete();
+    res.status(204).send("deleted");
+  } catch (error) {
+    next(error);
+  }
 };

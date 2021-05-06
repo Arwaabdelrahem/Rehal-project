@@ -5,77 +5,106 @@ const _ = require("lodash");
 const { Service } = require("../models/Service");
 
 exports.getAll = async (req, res, next) => {
-  const cities = await City.paginate({});
-  res.status(200).send(cities);
+  try {
+    const cities = await City.paginate({});
+    res.status(200).send(cities);
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.getCity = async (req, res, next) => {
-  let city = await City.findById(req.params.cityId);
-  if (!city) return res.status(404).send("City not found");
+  try {
+    let city = await City.findById(req.params.cityId);
+    if (!city) return res.status(404).send("City not found");
 
-  res.status(200).send(city);
+    res.status(200).send(city);
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.cityServices = async (req, res, next) => {
-  let city = await City.findById(req.params.cityId);
-  if (!city) return res.status(404).send("City not found");
+  try {
+    let city = await City.findById(req.params.cityId);
+    if (!city) return res.status(404).send("City not found");
 
-  res.status(200).send(city.services);
+    res.status(200).send(city.services);
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.newCity = async (req, res, next) => {
-  let city = await City.findOne({ postalCode: req.body.postalCode });
-  if (city) return res.status(400).send("City already exits");
+  try {
+    let city = await City.findOne({ postalCode: req.body.postalCode });
+    if (city) return res.status(400).send("City already exits");
 
-  let img;
-  if (req.files.length !== 0) {
-    img = await cloud.cloudUpload(req.files[0].path);
-    req.body.image = img.image;
+    let img;
+    if (req.files.length !== 0) {
+      img = await cloud.cloudUpload(req.files[0].path);
+      req.body.image = img.image;
+    }
+
+    city = new City(req.body);
+    await city.save();
+
+    if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
+    res.status(201).send(city);
+  } catch (error) {
+    next(error);
   }
-
-  city = new City(req.body);
-  await city.save();
-
-  if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
-  res.status(201).send(city);
 };
 
 exports.addServiceToCity = async (req, res, next) => {
-  let city = await City.findById(req.params.cityId);
-  if (!city) return res.status(404).send("City not found");
+  try {
+    let city = await City.findById(req.params.cityId);
+    if (!city) return res.status(404).send("City not found");
 
-  let service = await Service.findById(req.params.serviceId);
-  if (!service) return res.status(404).send("Service not found");
+    let service = await Service.findById(req.params.serviceId);
+    if (!service) return res.status(404).send("Service not found");
 
-  const exist = _.findKey(city.services, (s) => {
-    if (s._id.toString() === service._id.toString()) return "index";
-  });
-  if (exist) return res.status(400).send("Service already exists");
+    const exist = _.findKey(city.services, (s) => {
+      console.log(s);
+      if (s.toString() === service._id.toString()) return "index";
+    });
+    if (exist) return res.status(400).send("Service already exists");
 
-  city.services.push(service._id);
-  await city.save();
-  res.status(200).send(city);
+    city.services.push(service._id);
+    await city.save();
+    res.status(200).send(city);
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.editCity = async (req, res, next) => {
-  let city = await City.findById(req.params.cityId);
-  if (!city) return res.status(404).send("City not found");
+  try {
+    let city = await City.findById(req.params.cityId);
+    if (!city) return res.status(404).send("City not found");
 
-  let img;
-  if (req.files.length !== 0) {
-    img = await cloud.cloudUpload(req.files[0].path);
-    req.body.image = img.image;
+    let img;
+    if (req.files.length !== 0) {
+      img = await cloud.cloudUpload(req.files[0].path);
+      req.body.image = img.image;
+    }
+
+    await city.set(req.body).save();
+    if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
+    res.status(200).send(city);
+  } catch (error) {
+    next(error);
   }
-
-  await city.set(req.body).save();
-  if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
-  res.status(200).send(city);
 };
 
 exports.deleteCity = async (req, res, next) => {
-  let city = await City.findById(req.params.cityId);
-  if (!city) return res.status(404).send("City not found");
+  try {
+    let city = await City.findById(req.params.cityId);
+    if (!city) return res.status(404).send("City not found");
 
-  await city.delete();
-  res.status(204).send("deleted");
+    await city.delete();
+    res.status(204).send("deleted");
+  } catch (error) {
+    next(error);
+  }
 };

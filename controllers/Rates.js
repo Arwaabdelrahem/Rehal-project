@@ -2,18 +2,22 @@ const { Place } = require("../models/Place");
 const { Rate } = require("../models/Rate");
 
 exports.getAll = async (req, res, next) => {
-  let rates = await Rate.paginate(
-    { place: req.params.placeId },
-    {
-      select: "rating user place",
-      sort: "-createdAt",
-      populate: [
-        { path: "user", select: "name" },
-        { path: "place", select: "name rating" },
-      ],
-    }
-  );
-  res.status(200).send(rates);
+  try {
+    let rates = await Rate.paginate(
+      { place: req.params.placeId },
+      {
+        select: "rating user place",
+        sort: "-createdAt",
+        populate: [
+          { path: "user", select: "name" },
+          { path: "place", select: "name rating" },
+        ],
+      }
+    );
+    res.status(200).send(rates);
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.newRate = async (req, res, next) => {
@@ -33,31 +37,35 @@ exports.newRate = async (req, res, next) => {
     await rate.save();
   }
 
-  let countRate = [];
-  let numberOfRates = 0;
-  let rating, count;
-  for (let i = 1; i <= 5; i++) {
-    rating = await Rate.countDocuments({
+  try {
+    let countRate = [];
+    let numberOfRates = 0;
+    let rating, count;
+    for (let i = 1; i <= 5; i++) {
+      rating = await Rate.countDocuments({
+        place: place._id,
+        rating: i,
+      });
+      countRate.push(rating);
+
+      count = i * countRate[i - 1];
+      numberOfRates += count;
+    }
+
+    let countAll = await Rate.countDocuments({
       place: place._id,
-      rating: i,
     });
-    countRate.push(rating);
 
-    count = i * countRate[i - 1];
-    numberOfRates += count;
+    let newRating = numberOfRates / countAll;
+
+    place.rating = newRating;
+    await place.save();
+    await Rate.populate(rate, [
+      { path: "user", select: "name" },
+      { path: "place", select: "name rating" },
+    ]);
+    res.status(200).send(rate);
+  } catch (error) {
+    next(error);
   }
-
-  let countAll = await Rate.countDocuments({
-    place: place._id,
-  });
-
-  let newRating = numberOfRates / countAll;
-
-  place.rating = newRating;
-  await place.save();
-  await Rate.populate(rate, [
-    { path: "user", select: "name" },
-    { path: "place", select: "name rating" },
-  ]);
-  res.status(200).send(rate);
 };
