@@ -28,9 +28,11 @@ exports.newRate = async (req, res, next) => {
     user: req.user._id,
     place: place._id,
   });
+
   if (rate) {
     await rate.set(req.body).save();
   } else {
+    req.body.rating = parseInt(req.body.rating);
     req.body.user = req.user._id;
     req.body.place = place._id;
     rate = new Rate(req.body);

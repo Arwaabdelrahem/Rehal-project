@@ -46,6 +46,7 @@ exports.getById = async (req, res, next) => {
 exports.search = async (req, res, next) => {
   try {
     let place;
+    console.log(req.query.search);
     if (req.query.search) {
       const text = req.query.search;
       const Regex = new RegExp(text, "gi");
@@ -84,7 +85,7 @@ exports.nearestPlaces = async (req, res, next) => {
     let places = await Place.find({
       location: {
         $near: {
-          $maxDistance: 1000,
+          $maxDistance: 1500,
           $geometry: {
             type: req.user.location.type,
             coordinates: req.user.location.coordinates,
@@ -110,9 +111,14 @@ exports.newPlace = async (req, res, next) => {
     req.body.city = req.params.cityId;
     req.body.service = req.params.serviceId;
 
-    const place = new Place(req.body);
-
+    const place = new Place({
+      ...req.body,
+      location: {
+        coordinates: [req.body.long, req.body.lat],
+      },
+    });
     await place.save();
+
     if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
     res.status(201).send(place);
   } catch (error) {
