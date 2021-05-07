@@ -51,10 +51,6 @@ exports.newComment = async (req, res, next) => {
       place: type === "comment" ? req.params.placeId : comment.place,
       depth: type === "comment" ? 0 : comment.depth + 1,
       directParent: type === "comment" ? null : comment.id,
-      parents: [
-        ...(type !== "comment" ? [comment.id] : []),
-        ...(type === "reply" ? comment.parents : []),
-      ],
       author: req.user.id,
       content: req.body.content,
     });
@@ -63,6 +59,28 @@ exports.newComment = async (req, res, next) => {
     if (type !== "comment") {
       req.body.reply = comment.reply.push(newComment._id);
       await comment.save();
+
+      if (newComment.author.toString() !== comment.author.toString()) {
+        // Send Notification in-app
+        const clients = await User.find({ _id: comment.author });
+        const targetUsers = clients.map((user) => user.id);
+        const notification = await new Notification({
+          title: "Rehal",
+          body: `${req.user.name} replied to your comment.`,
+          user: req.user._id,
+          targetUsers: targetUsers,
+          subjectType: "Comment",
+          subject: comment._id,
+        }).save();
+
+        // push notifications
+        const receivers = clients;
+        for (let i = 0; i < receivers.length; i++) {
+          await receivers[i].sendNotification(
+            notification.toFirebaseNotification()
+          );
+        }
+      }
     }
     res.status(201).send(newComment);
   } catch (error) {

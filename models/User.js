@@ -67,6 +67,10 @@ const userSchema = mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  enabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 function register(user) {
@@ -105,7 +109,6 @@ userSchema.methods.sendNotification = async function (message) {
       await notificationService.sendNotification(deviceToken, message);
       console.log("2");
     } catch (error) {
-      // console.log(error);
       this.pushTokens.splice(len, 1);
       changed = true;
     }
@@ -121,6 +124,7 @@ userSchema.set("toJSON", {
       name: doc.name,
       email: doc.email,
       isAdmin: doc.isAdmin,
+      enabled: doc.enabled,
       codeVerifing: doc.codeVerifing,
       image: doc.image,
       savedPlaces: doc.savedPlaces,

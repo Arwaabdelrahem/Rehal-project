@@ -5,15 +5,18 @@ const { User } = require("../models/User");
 exports.fetchAll = async (req, res, next) => {
   const user = req.user;
   //paginate
-  let notifications = await Notification.paginate({
-    targetUsers: { $in: [user.id] },
-  })
-    .sort("-createdAt")
-    .populate("subject");
-
+  let notifications = await Notification.paginate(
+    {
+      targetUsers: { $in: [user.id] },
+    },
+    {
+      sort: "-createdAt",
+      populate: "subject",
+    }
+  );
   try {
-    const collection = notifications;
-    console.log(notifications);
+    const collection = notifications.docs;
+    console.log(collection.length);
     for (let i = 0; i < collection.length; i++) {
       let notification = _.cloneDeep(collection[i]);
 

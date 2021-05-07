@@ -7,13 +7,10 @@ const passportConfig = require("../passport");
 
 const router = express.Router();
 
-router.get("/profile", auth, userController.profile);
-
 router.post("/register", multer, userController.Register);
 router.post("/sendCode", userController.sendCode);
 router.post("/verifyEmail", userController.verifyCode);
 router.post("/forgetPassword", userController.forgetPassword);
-router.post("/changePassword", auth, userController.changePassword);
 router.post("/login", userController.LogIn);
 router.post(
   "/Oauth/google",
@@ -25,8 +22,13 @@ router.post(
   passport.authenticate("facebookToken", { session: false }),
   userController.Oauth
 );
-router.post("/savePlaces/:placeId", auth, userController.savePlaces);
-router.put("/edit/:id", auth, multer, userController.editProfile);
-router.delete("/delete/:id", auth, userController.deleteAccount);
+
+router.use(auth);
+
+router.get("/profile", userController.profile);
+router.post("/changePassword", userController.changePassword);
+router.post("/savePlaces/:placeId", userController.savePlaces);
+router.put("/edit/:id", multer, userController.editProfile);
+router.delete("/delete/:id", userController.deleteAccount);
 
 module.exports = router;

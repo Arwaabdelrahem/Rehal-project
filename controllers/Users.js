@@ -109,6 +109,7 @@ exports.verifyCode = async (req, res, next) => {
   try {
     if (user.codeVerifing === req.body.code) {
       user.codeVerifing = "";
+      user.enabled = true;
       user = await user.save();
       res.status(200).send(user);
     }
@@ -118,16 +119,21 @@ exports.verifyCode = async (req, res, next) => {
 };
 
 exports.LogIn = async (req, res, next) => {
+  const { error } = logIn(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) return res.status(404).send("Invalid email or password");
+
+  if (user.isAdmin !== true) {
+    //Not Admin
+    if (!user.enabled) return res.status(401).send("Email not activated");
+  }
+
+  const compare = await bcrypt.compare(req.body.password, user.password);
+  if (!compare) return res.status(404).send("Invalid email or password");
+
   try {
-    const { error } = logIn(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
-    const user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status(404).send("Invalid email or password");
-
-    const compare = await bcrypt.compare(req.body.password, user.password);
-    if (!compare) return res.status(404).send("Invalid email or password");
-
     const token = user.generateToken();
     res.status(200).send({ user, token });
   } catch (error) {

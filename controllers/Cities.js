@@ -29,6 +29,7 @@ exports.cityServices = async (req, res, next) => {
     let city = await City.findById(req.params.cityId);
     if (!city) return res.status(404).send("City not found");
 
+    await City.populate(city, [{ path: "services", select: "name" }]);
     res.status(200).send(city.services);
   } catch (error) {
     next(error);

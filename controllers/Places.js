@@ -1,10 +1,11 @@
 const { Place } = require("../models/Place");
+const { User } = require("../models/User");
 const cloud = require("../startup/cloudinary");
 const fs = require("fs");
-const https = require("https");
 const { City } = require("../models/City");
 const { Service } = require("../models/Service");
 const _ = require("lodash");
+const { Notification } = require("../models/Notification");
 
 exports.getPlacesInCity = async (req, res, next) => {
   try {
@@ -46,7 +47,6 @@ exports.getById = async (req, res, next) => {
 exports.search = async (req, res, next) => {
   try {
     let place;
-    console.log(req.query.search);
     if (req.query.search) {
       const text = req.query.search;
       const Regex = new RegExp(text, "gi");
@@ -139,6 +139,26 @@ exports.addMedia = async (req, res, next) => {
   try {
     place.media.push(req.body.image);
     await place.save();
+
+    // Send Notification in-app
+    const clients = await User.find({ savedPlaces: place._id });
+    const targetUsers = clients.map((user) => user.id);
+    const notification = await new Notification({
+      title: "Rehal",
+      body: `new media added to ${place.name}.`,
+      user: req.user._id,
+      targetUsers: targetUsers,
+      subjectType: "Place",
+      subject: place._id,
+    }).save();
+
+    // push notifications
+    const receivers = clients;
+    for (let i = 0; i < receivers.length; i++) {
+      await receivers[i].sendNotification(
+        notification.toFirebaseNotification()
+      );
+    }
 
     if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
     res.status(200).send(place);
