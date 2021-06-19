@@ -9,7 +9,6 @@ const router = express.Router();
 
 router.post("/register", multer, userController.Register);
 router.post("/sendCode", userController.sendCode);
-router.post("/verifyEmail", userController.verifyCode);
 router.post("/forgetPassword", userController.forgetPassword);
 router.post("/login", userController.LogIn);
 router.post(
@@ -28,7 +27,7 @@ router.use(auth);
 router.get("/profile", userController.profile);
 router.post("/changePassword", userController.changePassword);
 router.post("/savePlaces/:placeId", userController.savePlaces);
-router.put("/edit/:id", multer, userController.editProfile);
-router.delete("/delete/:id", userController.deleteAccount);
+router.put("/edit", multer, userController.editProfile);
+router.delete("/delete", userController.deleteAccount);
 
 module.exports = router;
