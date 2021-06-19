@@ -53,66 +53,17 @@ exports.Register = async (req, res, next) => {
   const { error } = register(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  let user = await User.findOne({ "local.email": req.body.email });
+  let user = await User.findOne({ email: req.body.email });
   if (user) return res.status(400).send("User with same email already exists");
 
-  let img;
-  if (req.files.length !== 0) {
-    img = await cloud.cloudUpload(req.files[0].path);
-    req.body.image = img.image;
-  }
-
-  var generator = new CodeGenerator();
-  const code = generator.generateCodes("#+#+#+", 100)[0];
-
-  var transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: "apprehal@gmail.com",
-      pass: process.env.PASSWORD,
-    },
-  });
-
-  var mailOptions = {
-    from: "apprehal@gmail.com",
-    to: req.body.email,
-    subject: "Verfication Code",
-    text: `your verfication code ${code}`,
-  };
-
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log(`Email sent: ${info.response}`);
-    }
-  });
-
   try {
-    req.body.codeVerifing = code;
     req.body.password = await bcrypt.hash(req.body.password, 10);
 
     user = new User(req.body);
     await user.save();
 
-    if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
-    res.status(201).send(user);
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.verifyCode = async (req, res, next) => {
-  let user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(400).send("please enter a valid email");
-
-  try {
-    if (user.codeVerifing === req.body.code) {
-      user.codeVerifing = "";
-      user.enabled = true;
-      user = await user.save();
-      res.status(200).send(user);
-    }
+    const token = user.generateToken();
+    res.status(201).send({user,token});
   } catch (error) {
     next(error);
   }
@@ -124,11 +75,6 @@ exports.LogIn = async (req, res, next) => {
 
   const user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(404).send("Invalid email or password");
-
-  if (user.isAdmin !== true) {
-    //Not Admin
-    if (!user.enabled) return res.status(401).send("Email not activated");
-  }
 
   const compare = await bcrypt.compare(req.body.password, user.password);
   if (!compare) return res.status(404).send("Invalid email or password");
