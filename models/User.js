@@ -33,6 +33,9 @@ const userSchema = mongoose.Schema({
       ref: "Place",
     },
   ],
+  city:{
+    type:String,
+  },
   location: {
     type: {
       type: String,
@@ -66,11 +69,7 @@ const userSchema = mongoose.Schema({
   isAdmin: {
     type: Boolean,
     default: false,
-  },
-  enabled: {
-    type: Boolean,
-    default: false,
-  },
+  }
 });
 
 function register(user) {
@@ -79,6 +78,15 @@ function register(user) {
     email: Joi.string().email().required(),
     password: Joi.string().required(),
     image: Joi.string(),
+    city:Joi.string(),
+    location:Joi.object().keys({
+      type: Joi.string(),
+      coordinates: Joi.array().items()
+    }),
+    pushTokens: Joi.array().items(Joi.object().keys({
+      deviceType: Joi.string().required(),
+      deviceToken: Joi.string().required()
+    }))
   });
   return schema.validate(user);
 }
@@ -124,7 +132,6 @@ userSchema.set("toJSON", {
       name: doc.name,
       email: doc.email,
       isAdmin: doc.isAdmin,
-      enabled: doc.enabled,
       codeVerifing: doc.codeVerifing,
       image: doc.image,
       savedPlaces: doc.savedPlaces,
