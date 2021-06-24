@@ -25,6 +25,9 @@ router.post(
 router.use(auth);
 
 router.get("/profile", userController.profile);
+router.get("/saved/Overall", userController.savedOverall);
+router.get("/saved/rate", userController.savedRate);
+router.get("/saved/new", userController.savedNew);
 router.post("/changePassword", userController.changePassword);
 router.post("/savePlaces/:placeId", userController.savePlaces);
 router.put("/edit", multer, userController.editProfile);
