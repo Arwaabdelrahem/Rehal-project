@@ -14,7 +14,11 @@ exports.getAll = async (req, res, next) => {
         ],
       }
     );
-    res.status(200).send(rates);
+
+    let countAll = await Rate.countDocuments({
+      place: req.params.placeId,
+    });
+    res.status(200).send({ rates, countAll });
   } catch (error) {
     next(error);
   }
