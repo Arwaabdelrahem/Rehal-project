@@ -95,7 +95,7 @@ exports.Oauth = async (req, res, next) => {
     console.log("google, fb");
     res.status(200).send({ user: req.user, token });
   } catch (error) {
-    // next(error);
+    next(error);
     console.log(error);
   }
 };
