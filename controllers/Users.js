@@ -92,11 +92,9 @@ exports.Oauth = async (req, res, next) => {
   try {
     delete isAdmin;
     const token = req.user.generateToken();
-    console.log("google, fb");
     res.status(200).send({ user: req.user, token });
   } catch (error) {
     next(error);
-    console.log(error);
   }
 };
 
