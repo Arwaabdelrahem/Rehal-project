@@ -9,9 +9,10 @@ router.get("/cities/:cityId", placeControllers.getPlacesInCity);
 router.get("/best/cities/:cityId", placeControllers.bestPlaces);
 router.get("/:placeId", placeControllers.getById);
 router.get("/:placeId/media", placeControllers.fetchMedia);
+
+router.use(auth);
 router.get(
   "/cities/:cityId/services/:serviceId",
-  auth,
   placeControllers.nearestPlaces
 );
 router.post("/cities/:cityId", auth, placeControllers.search);
