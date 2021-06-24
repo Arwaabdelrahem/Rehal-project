@@ -51,22 +51,22 @@ const userSchema = mongoose.Schema({
       },
     ],
   },
-  pushTokens: [
-    new mongoose.Schema(
-      {
-        deviceType: {
-          type: String,
-          enum: ["android", "ios", "web"],
-          required: true,
-        },
-        deviceToken: {
-          type: String,
-          required: true,
-        },
-      },
-      { _id: false }
-    ),
-  ],
+  // pushTokens: [
+  //   new mongoose.Schema(
+  //     {
+  //       deviceType: {
+  //         type: String,
+  //         enum: ["android", "ios", "web"],
+  //         required: true,
+  //       },
+  //       deviceToken: {
+  //         type: String,
+  //         required: true,
+  //       },
+  //     },
+  //     { _id: false }
+  //   ),
+  // ],
   isAdmin: {
     type: Boolean,
     default: false,
@@ -84,12 +84,12 @@ function register(user) {
       type: Joi.string(),
       coordinates: Joi.array().items(),
     }),
-    pushTokens: Joi.array().items(
-      Joi.object().keys({
-        deviceType: Joi.string().required(),
-        deviceToken: Joi.string().required(),
-      })
-    ),
+    // pushTokens: Joi.array().items(
+    //   Joi.object().keys({
+    //     deviceType: Joi.string().required(),
+    //     deviceToken: Joi.string().required(),
+    //   })
+    // ),
   });
   return schema.validate(user);
 }
