@@ -31,10 +31,11 @@ const userSchema = mongoose.Schema({
     {
       type: Number,
       ref: "Place",
+      autopopulate: true,
     },
   ],
-  city:{
-    type:String,
+  city: {
+    type: String,
   },
   location: {
     type: {
@@ -69,7 +70,7 @@ const userSchema = mongoose.Schema({
   isAdmin: {
     type: Boolean,
     default: false,
-  }
+  },
 });
 
 function register(user) {
@@ -78,15 +79,17 @@ function register(user) {
     email: Joi.string().email().required(),
     password: Joi.string().required(),
     image: Joi.string(),
-    city:Joi.string(),
-    location:Joi.object().keys({
+    city: Joi.string(),
+    location: Joi.object().keys({
       type: Joi.string(),
-      coordinates: Joi.array().items()
+      coordinates: Joi.array().items(),
     }),
-    pushTokens: Joi.array().items(Joi.object().keys({
-      deviceType: Joi.string().required(),
-      deviceToken: Joi.string().required()
-    }))
+    pushTokens: Joi.array().items(
+      Joi.object().keys({
+        deviceType: Joi.string().required(),
+        deviceToken: Joi.string().required(),
+      })
+    ),
   });
   return schema.validate(user);
 }
@@ -143,6 +146,7 @@ userSchema.set("toJSON", {
 
 userSchema.plugin(pagination);
 userSchema.plugin(mongooseAutoIncrement.plugin, { model: "User", startAt: 1 });
+userSchema.plugin(require("mongoose-autopopulate"));
 const User = mongoose.model("User", userSchema);
 
 exports.User = User;
