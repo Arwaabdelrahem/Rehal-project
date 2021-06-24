@@ -30,6 +30,9 @@ const placeSchema = mongoose.Schema({
     required: true,
   },
   media: [{ type: String }],
+  description: {
+    type: String,
+  },
   location: {
     type: {
       type: String,
