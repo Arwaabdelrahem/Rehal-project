@@ -6,6 +6,7 @@ const CodeGenerator = require("node-code-generator");
 const fs = require("fs");
 const { Place } = require("../models/Place");
 const _ = require("lodash");
+const isAdmin = require("../middlewares/isAdmin");
 
 exports.profile = async (req, res, next) => {
   try {
@@ -89,10 +90,13 @@ exports.LogIn = async (req, res, next) => {
 
 exports.Oauth = async (req, res, next) => {
   try {
+    delete isAdmin;
     const token = req.user.generateToken();
+    console.log("google, fb");
     res.status(200).send({ user: req.user, token });
   } catch (error) {
-    next(error);
+    // next(error);
+    console.log(error);
   }
 };
 
@@ -126,6 +130,47 @@ exports.changePassword = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+exports.savedOverall = async (req, res, next) => {
+  const user = await User.findById(req.user.id).populate("savedPlaces");
+  if (!user) return res.status(404).send("User not found");
+
+  res.status(200).send(user.savedPlaces)
+};
+
+exports.savedRate = async (req, res, next) => {
+  const user = await User.aggregate([
+    // { $match: { id: id } },
+    { $lookup: {
+        from: "places",
+        localField: "savedPlaces",
+        foreignField: "_id",
+        as: "saved"
+      }},
+    { $unwind: "$savedPlaces" },
+    { $project: { _id: 1, rates: "$saved.rating" }},
+    {
+      $group: {
+        _id: "$_id",
+        highestRate: { $max: "$rates" },
+      },
+    },
+    { $match: { _id: parseInt(req.user.id)}},
+    { $sort: { highestRate: 1 } },
+  ]);
+  console.log(user);
+  if (!user) return res.status(404).send("User not found");
+
+  res.status(200).send(user)
+};
+
+exports.savedNew = async (req, res, next) => {
+  const user = await User.findById(req.user.id).populate('savedPlaces');
+  if (!user) return res.status(404).send("User not found");
+
+  user.savedPlaces.reverse();
+  res.status(200).send(user.savedPlaces)
 };
 
 exports.savePlaces = async (req, res, next) => {
