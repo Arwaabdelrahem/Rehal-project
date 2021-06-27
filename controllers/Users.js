@@ -196,9 +196,6 @@ exports.savePlaces = async (req, res, next) => {
 
 exports.editProfile = async (req, res, next) => {
   try {
-    if (req.user._id.toString() !== req.params.id.toString())
-      return res.status(403).send("Forbidden");
-
     let img;
     if (req.files.length !== 0) {
       img = await cloud.cloudUpload(req.files[0].path);
@@ -218,9 +215,6 @@ exports.editProfile = async (req, res, next) => {
 };
 
 exports.deleteAccount = async (req, res, next) => {
-  if (req.user._id.toString() !== req.params.id.toString())
-    return res.status(403).send("Forbidden");
-
   try {
     await req.user.delete();
     res.status(204).json();
