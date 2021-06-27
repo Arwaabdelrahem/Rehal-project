@@ -58,7 +58,7 @@ schema.set("toJSON", {
       metadata: {
         // total reactions ,, total comments
         reactions: doc.reactions.length,
-        reply: doc.reply.length,
+        reply: doc.reply ? doc.reply.length : 0,
       },
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

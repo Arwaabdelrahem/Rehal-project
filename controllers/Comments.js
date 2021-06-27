@@ -26,9 +26,14 @@ exports.fetchComment = async (req, res, next) => {
       depth: type === "comment" ? 0 : comment.depth + 1,
       directParent: type === "comment" ? null : comment.id,
     });
+    await Comment.populate(comments, [
+      { path: "author", select: "name -savedPlaces image" },
+      { path: "reply", select: "author content reactions" },
+    ]);
     res.status(200).send(comments);
   } catch (error) {
-    next(error);
+    //next(error);
+    console.log(error);
   }
 };
 

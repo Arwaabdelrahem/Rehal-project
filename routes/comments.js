@@ -4,10 +4,11 @@ const multer = require("../middlewares/multer");
 const auth = require("../middlewares/auth");
 const router = express.Router();
 
-router.use(auth);
-
 router.get("/places/:placeId", commentsCntrl.fetchComment);
 router.get("/reply/:commentId", commentsCntrl.fetchComment);
+
+router.use(auth);
+
 router.post("/new/places/:placeId", commentsCntrl.newComment);
 router.post("/new/reply/:commentId", commentsCntrl.newComment);
 router.post("/react/:commentId", commentsCntrl.React);
