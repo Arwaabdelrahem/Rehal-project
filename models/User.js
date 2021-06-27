@@ -22,6 +22,8 @@ const userSchema = mongoose.Schema({
   },
   image: {
     type: String,
+    default:
+      "http://res.cloudinary.com/dnmp0mplw/image/upload/v1624801026/ecju1eyptnbwn4teavri.jpg",
   },
   codeVerifing: {
     type: String,
