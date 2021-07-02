@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.post("/register", multer, userController.Register);
 router.post("/sendCode", userController.sendCode);
+router.post("/verifyCode", userController.codeVerifing);
 router.post("/forgetPassword", userController.forgetPassword);
 router.post("/login", userController.LogIn);
 router.post(

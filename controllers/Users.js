@@ -50,6 +50,24 @@ exports.sendCode = async (req, res, next) => {
   });
 };
 
+exports.codeVerifing = async (req, res, next) => {
+  let user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return res.status(404).send("User with the given email not exits");
+  }
+
+  try {
+    if (user.codeVerifing == req.body.code) {
+      user.enabled = true;
+      user.codeVerifing = "";
+      user = await user.save();
+      res.status(200).send(user);
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+
 exports.Register = async (req, res, next) => {
   const { error } = register(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -107,7 +125,7 @@ exports.forgetPassword = async (req, res, next) => {
       user.password = await bcrypt.hash(req.body.newPassword, 10);
       user.codeVerifing = "";
       user = await user.save();
-      res.status(200).send({ msg: "Code sent", user });
+      res.status(200).send(user);
     }
   } catch (error) {
     next(error);
