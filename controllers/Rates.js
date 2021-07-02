@@ -65,6 +65,8 @@ exports.newRate = async (req, res, next) => {
     let newRating = numberOfRates / countAll;
 
     place.rating = newRating;
+    place.reviews = countAll;
+
     await place.save();
     await Rate.populate(rate, [
       { path: "user", select: "name" },

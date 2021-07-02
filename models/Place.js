@@ -19,6 +19,9 @@ const placeSchema = mongoose.Schema({
   rating: {
     type: Number,
   },
+  reviews: {
+    type: Number,
+  },
   city: {
     type: Number,
     ref: "City",
@@ -37,7 +40,6 @@ const placeSchema = mongoose.Schema({
     type: {
       type: String,
       default: "Point",
-      required: true,
     },
     coordinates: [
       // long came 1st
@@ -57,6 +59,7 @@ placeSchema.set("toJSON", {
       name: doc.name,
       address: doc.address,
       rating: doc.rating,
+      reviews: doc.reviews,
       city: doc.city,
       service: doc.service,
       comments: doc.comments,

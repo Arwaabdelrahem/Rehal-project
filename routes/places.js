@@ -11,6 +11,7 @@ router.get("/:placeId", placeControllers.getById);
 router.get("/:placeId/media", placeControllers.fetchMedia);
 
 router.use(auth);
+
 router.get(
   "/cities/:cityId/services/:serviceId",
   placeControllers.nearestPlaces
@@ -18,6 +19,7 @@ router.get(
 router.post("/cities/:cityId", auth, placeControllers.search);
 
 router.use(isAdmin);
+
 router.post(
   "/new/cities/:cityId/services/:serviceId",
   multer,
