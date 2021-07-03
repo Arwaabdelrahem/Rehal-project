@@ -114,7 +114,7 @@ exports.newPlace = async (req, res, next) => {
     const place = new Place({
       ...req.body,
       location: {
-        coordinates: [req.body.long, req.body.lat],
+        coordinates: [req.body.lng, req.body.lat],
       },
     });
     await place.save();
