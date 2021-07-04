@@ -6,7 +6,7 @@ exports.getAll = async (req, res, next) => {
     let rates = await Rate.paginate(
       { place: req.params.placeId },
       {
-        select: "rating user place",
+        select: "rating user place createdAt updatedAt",
         sort: "-createdAt",
         populate: [
           { path: "user", select: "name" },
@@ -15,10 +15,7 @@ exports.getAll = async (req, res, next) => {
       }
     );
 
-    let countAll = await Rate.countDocuments({
-      place: req.params.placeId,
-    });
-    res.status(200).send({ rates, countAll });
+    res.status(200).send(rates);
   } catch (error) {
     next(error);
   }
