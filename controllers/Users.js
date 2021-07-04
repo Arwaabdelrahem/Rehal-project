@@ -222,6 +222,7 @@ exports.editProfile = async (req, res, next) => {
 
     delete req.body.isAdmin;
     delete req.body.codeVerifing;
+    delete req.body.password;
 
     await req.user.set(req.body).save();
 
