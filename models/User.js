@@ -142,6 +142,8 @@ userSchema.set("toJSON", {
       savedPlaces: doc.savedPlaces,
       pushTokens: doc.pushTokens,
       location: doc.location,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     };
   },
 });

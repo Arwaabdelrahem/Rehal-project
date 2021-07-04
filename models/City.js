@@ -34,6 +34,8 @@ citySchema.set("toJSON", {
       postalCode: doc.postalCode,
       services: doc.services,
       image: doc.image,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     };
   },
 });

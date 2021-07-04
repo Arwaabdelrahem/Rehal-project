@@ -70,6 +70,8 @@ notificationSchema.set("toJSON", {
       subjectType: doc.subjectType,
       subject: doc.subject,
       targetUsers: doc.targetUsers,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     };
   },
 });

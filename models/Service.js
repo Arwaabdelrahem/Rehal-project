@@ -21,6 +21,8 @@ serviceSchema.set("toJSON", {
       id: doc.id,
       name: doc.name,
       image: doc.image,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     };
   },
 });

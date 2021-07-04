@@ -32,6 +32,8 @@ rateSchema.set("toJSON", {
       place: doc.place,
       user: doc.user,
       rating: doc.rating,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     };
   },
 });

@@ -66,6 +66,8 @@ placeSchema.set("toJSON", {
       image: doc.image,
       media: doc.media,
       location: doc.location,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
     };
   },
 });
