@@ -4,15 +4,18 @@ const mongooseAutoIncrement = require("mongoose-auto-increment");
 
 mongooseAutoIncrement.initialize(mongoose.connection);
 
-const serviceSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
+const serviceSchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    image: {
+      type: String,
+    },
   },
-  image: {
-    type: String,
-  },
-});
+  { timestamps: true }
+);
 
 serviceSchema.set("toJSON", {
   virtuals: true,

@@ -4,52 +4,55 @@ const mongooseAutoIncrement = require("mongoose-auto-increment");
 
 mongooseAutoIncrement.initialize(mongoose.connection);
 
-const placeSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
-  image: {
-    type: String,
-  },
-  rating: {
-    type: Number,
-  },
-  reviews: {
-    type: Number,
-  },
-  city: {
-    type: Number,
-    ref: "City",
-    required: true,
-  },
-  service: {
-    type: Number,
-    ref: "Service",
-    required: true,
-  },
-  media: [{ type: String }],
-  description: {
-    type: String,
-  },
-  location: {
-    type: {
+const placeSchema = mongoose.Schema(
+  {
+    name: {
       type: String,
-      default: "Point",
+      required: true,
     },
-    coordinates: [
-      // long came 1st
-      {
-        type: Number,
-        required: true,
+    address: {
+      type: String,
+      required: true,
+    },
+    image: {
+      type: String,
+    },
+    rating: {
+      type: Number,
+    },
+    reviews: {
+      type: Number,
+    },
+    city: {
+      type: Number,
+      ref: "City",
+      required: true,
+    },
+    service: {
+      type: Number,
+      ref: "Service",
+      required: true,
+    },
+    media: [{ type: String }],
+    description: {
+      type: String,
+    },
+    location: {
+      type: {
+        type: String,
+        default: "Point",
       },
-    ],
+      coordinates: [
+        // long came 1st
+        {
+          type: Number,
+          required: true,
+        },
+      ],
+    },
   },
-});
+  { timestamps: true }
+);
 
 placeSchema.set("toJSON", {
   virtuals: true,

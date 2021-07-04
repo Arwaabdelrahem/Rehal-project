@@ -7,73 +7,76 @@ const notificationService = require("../services/notification");
 
 mongooseAutoIncrement.initialize(mongoose.connection);
 
-const userSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-  },
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-  },
-  image: {
-    type: String,
-    default:
-      "http://res.cloudinary.com/dnmp0mplw/image/upload/v1624801026/ecju1eyptnbwn4teavri.jpg",
-  },
-  codeVerifing: {
-    type: String,
-    required: false,
-  },
-  savedPlaces: [
-    {
-      type: Number,
-      ref: "Place",
-      autopopulate: true,
-    },
-  ],
-  city: {
-    type: String,
-  },
-  location: {
-    type: {
+const userSchema = mongoose.Schema(
+  {
+    name: {
       type: String,
-      default: "Point",
       required: true,
     },
-    coordinates: [
-      // long came 1st
+    password: {
+      type: String,
+    },
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    image: {
+      type: String,
+      default:
+        "http://res.cloudinary.com/dnmp0mplw/image/upload/v1624801026/ecju1eyptnbwn4teavri.jpg",
+    },
+    codeVerifing: {
+      type: String,
+      required: false,
+    },
+    savedPlaces: [
       {
         type: Number,
-        required: true,
+        ref: "Place",
+        autopopulate: true,
       },
     ],
+    city: {
+      type: String,
+    },
+    location: {
+      type: {
+        type: String,
+        default: "Point",
+        required: true,
+      },
+      coordinates: [
+        // long came 1st
+        {
+          type: Number,
+          required: true,
+        },
+      ],
+    },
+    // pushTokens: [
+    //   new mongoose.Schema(
+    //     {
+    //       deviceType: {
+    //         type: String,
+    //         enum: ["android", "ios", "web"],
+    //         required: true,
+    //       },
+    //       deviceToken: {
+    //         type: String,
+    //         required: true,
+    //       },
+    //     },
+    //     { _id: false }
+    //   ),
+    // ],
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
-  // pushTokens: [
-  //   new mongoose.Schema(
-  //     {
-  //       deviceType: {
-  //         type: String,
-  //         enum: ["android", "ios", "web"],
-  //         required: true,
-  //       },
-  //       deviceToken: {
-  //         type: String,
-  //         required: true,
-  //       },
-  //     },
-  //     { _id: false }
-  //   ),
-  // ],
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-});
+  { timestamps: true }
+);
 
 function register(user) {
   const schema = Joi.object({

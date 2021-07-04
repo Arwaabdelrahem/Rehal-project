@@ -4,26 +4,29 @@ const mongooseAutoIncrement = require("mongoose-auto-increment");
 
 mongooseAutoIncrement.initialize(mongoose.connection);
 
-const citySchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  image: {
-    type: String,
-  },
-  postalCode: {
-    type: Number,
-    required: true,
-    unique: true,
-  },
-  services: [
-    {
-      type: Number,
-      ref: "Service",
+const citySchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
     },
-  ],
-});
+    image: {
+      type: String,
+    },
+    postalCode: {
+      type: Number,
+      required: true,
+      unique: true,
+    },
+    services: [
+      {
+        type: Number,
+        ref: "Service",
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
 citySchema.set("toJSON", {
   virtuals: true,
