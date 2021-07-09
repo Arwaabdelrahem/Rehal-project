@@ -143,6 +143,7 @@ userSchema.set("toJSON", {
       id: doc.id,
       name: doc.name,
       email: doc.email,
+      phone: doc.phone,
       isAdmin: doc.isAdmin,
       codeVerifing: doc.codeVerifing,
       image: doc.image,
