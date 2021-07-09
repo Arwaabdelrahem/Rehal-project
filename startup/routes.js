@@ -4,6 +4,7 @@ const user = require("../routes/users");
 const cities = require("../routes/cities");
 const services = require("../routes/services");
 const places = require("../routes/places");
+const bookings = require("../routes/booking");
 const comments = require("../routes/comments");
 const rates = require("../routes/rates");
 const notifications = require("../routes/notifications");
@@ -18,6 +19,7 @@ module.exports = function (app) {
   app.use("/cities", cities);
   app.use("/services", services);
   app.use("/places", places);
+  app.use(bookings);
   app.use("/comments", comments);
   app.use("/rates", rates);
   app.use("/notifications", notifications);
