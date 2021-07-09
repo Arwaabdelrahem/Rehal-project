@@ -224,7 +224,12 @@ exports.editProfile = async (req, res, next) => {
     delete req.body.codeVerifing;
     delete req.body.password;
 
-    await req.user.set(req.body).save();
+    await req.user.set({
+      ...req.body,
+      location: {
+        coordinates: [req.body.lng, req.body.lat],
+      }
+    }).save();
 
     if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
     res.status(200).send(req.user);
