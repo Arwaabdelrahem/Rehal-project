@@ -21,6 +21,9 @@ const userSchema = mongoose.Schema(
       unique: true,
       required: true,
     },
+    phone: {
+      type: String,
+    },
     image: {
       type: String,
       default:
@@ -83,6 +86,7 @@ function register(user) {
     name: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
+    phone: Joi.string(),
     image: Joi.string(),
     city: Joi.string(),
     location: Joi.object().keys({
