@@ -9,7 +9,7 @@ const { Notification } = require("../models/Notification");
 
 exports.getPlacesInCity = async (req, res, next) => {
   try {
-    const city = await City.findById(req.params.cityId);
+    const city = await City.findById(req.params.cityId).populate("allRates");
     if (!city) return res.status(404).send("City not found");
 
     const places = await Place.paginate({ city: req.params.cityId });
@@ -21,7 +21,7 @@ exports.getPlacesInCity = async (req, res, next) => {
 
 exports.bestPlaces = async (req, res, next) => {
   try {
-    const city = await City.findById(req.params.cityId);
+    const city = await City.findById(req.params.cityId).populate("allRates");
     if (!city) return res.status(404).send("City not found");
 
     const places = await Place.find({ city: req.params.cityId }).sort({
@@ -35,7 +35,7 @@ exports.bestPlaces = async (req, res, next) => {
 
 exports.getById = async (req, res, next) => {
   try {
-    const place = await Place.findById(req.params.placeId);
+    const place = await Place.findById(req.params.placeId).populate("allRates");
     if (!place) return res.status(404).send("Place not found");
 
     res.status(200).send(place);
@@ -53,7 +53,7 @@ exports.search = async (req, res, next) => {
       place = await Place.findOne({
         name: req.query.search == "" ? /^$|/ : Regex,
         city: req.params.cityId,
-      });
+      }).populate("allRates");
     }
     if (!place) return res.status(400).send("No results found");
 
@@ -92,7 +92,7 @@ exports.nearestPlaces = async (req, res, next) => {
           },
         },
       },
-    });
+    }).populate("allRates");
 
     res.status(200).send(places);
   } catch (error) {
@@ -127,7 +127,7 @@ exports.newPlace = async (req, res, next) => {
 };
 
 exports.addMedia = async (req, res, next) => {
-  let place = await Place.findById(req.params.placeId);
+  let place = await Place.findById(req.params.placeId).populate("allRates");
   if (!place) return res.status(404).send("Place not found");
 
   let img;
@@ -168,7 +168,7 @@ exports.addMedia = async (req, res, next) => {
 };
 
 exports.editPlace = async (req, res, next) => {
-  let place = await Place.findById(req.params.placeId);
+  let place = await Place.findById(req.params.placeId).populate("allRates");
   if (!place) return res.status(404).send("Place not found");
 
   let img;
