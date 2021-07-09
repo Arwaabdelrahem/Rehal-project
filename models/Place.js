@@ -33,6 +33,14 @@ const placeSchema = mongoose.Schema(
       ref: "Service",
       required: true,
     },
+    allRates: [
+      {
+        type: Number,
+        ref: "Rate",
+        required: true,
+        autopopulate: true,
+      },
+    ],
     media: [{ type: String }],
     description: {
       type: String,
@@ -63,6 +71,7 @@ placeSchema.set("toJSON", {
       address: doc.address,
       rating: doc.rating,
       reviews: doc.reviews,
+      allRates: doc.allRates,
       city: doc.city,
       service: doc.service,
       comments: doc.comments,
@@ -77,6 +86,7 @@ placeSchema.set("toJSON", {
 
 placeSchema.index({ location: "2dsphere" });
 placeSchema.plugin(pagination);
+placeSchema.plugin(require("mongoose-autopopulate"));
 
 placeSchema.plugin(mongooseAutoIncrement.plugin, {
   model: "Place",
