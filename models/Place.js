@@ -33,14 +33,6 @@ const placeSchema = mongoose.Schema(
       ref: "Service",
       required: true,
     },
-    allRates: [
-      {
-        type: Number,
-        ref: "Rate",
-        required: true,
-        autopopulate: true,
-      },
-    ],
     media: [{ type: String }],
     description: {
       type: String,
@@ -61,6 +53,13 @@ const placeSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+
+placeSchema.virtual("allRates", {
+  ref: "Rate",
+  foreignField: "place",
+  localField: "_id",
+  justOne: false,
+});
 
 placeSchema.set("toJSON", {
   virtuals: true,
