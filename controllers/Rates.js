@@ -63,7 +63,6 @@ exports.newRate = async (req, res, next) => {
 
     place.rating = newRating;
     place.reviews = countAll;
-    place.allRates.push(rate);
     await place.save();
 
     await Rate.populate(rate, [
