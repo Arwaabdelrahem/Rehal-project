@@ -3,17 +3,13 @@ const { Rate } = require("../models/Rate");
 
 exports.getAll = async (req, res, next) => {
   try {
-    let rates = await Rate.find(
-      { place: req.params.placeId },
-      {
-        select: "rating user place createdAt updatedAt",
-        sort: "-createdAt",
-        populate: [
-          { path: "user", select: "name" },
-          { path: "place", select: "name rating" },
-        ],
-      }
-    );
+    let rates = await Rate.find({ place: req.params.placeId })
+      .select("rating user place createdAt updatedAt")
+      .sort("-createdAt")
+      .populate([
+        { path: "user", select: "name" },
+        { path: "place", select: "name rating" },
+      ]);
 
     res.status(200).send(rates);
   } catch (error) {
