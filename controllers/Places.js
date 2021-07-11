@@ -9,10 +9,12 @@ const { Notification } = require("../models/Notification");
 
 exports.getPlacesInCity = async (req, res, next) => {
   try {
-    const city = await City.findById(req.params.cityId).populate("allRates");
+    const city = await City.findById(req.params.cityId);
     if (!city) return res.status(404).send("City not found");
 
-    const places = await Place.find({ city: req.params.cityId });
+    const places = await Place.find({ city: req.params.cityId }).populate(
+      "allRates"
+    );
     res.status(200).send(places);
   } catch (error) {
     next(error);
@@ -21,12 +23,14 @@ exports.getPlacesInCity = async (req, res, next) => {
 
 exports.bestPlaces = async (req, res, next) => {
   try {
-    const city = await City.findById(req.params.cityId).populate("allRates");
+    const city = await City.findById(req.params.cityId);
     if (!city) return res.status(404).send("City not found");
 
-    const places = await Place.find({ city: req.params.cityId }).sort({
-      rating: -1,
-    });
+    const places = await Place.find({ city: req.params.cityId })
+      .sort({
+        rating: -1,
+      })
+      .populate("allRates");
     res.status(200).send(places);
   } catch (error) {
     next(error);
