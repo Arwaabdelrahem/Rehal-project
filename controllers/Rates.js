@@ -3,7 +3,7 @@ const { Rate } = require("../models/Rate");
 
 exports.getAll = async (req, res, next) => {
   try {
-    let rates = await Rate.paginate(
+    let rates = await Rate.find(
       { place: req.params.placeId },
       {
         select: "rating user place createdAt updatedAt",

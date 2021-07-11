@@ -6,7 +6,7 @@ const { City } = require("../models/City");
 
 exports.getAll = async (req, res, next) => {
   try {
-    const services = await Service.paginate({});
+    const services = await Service.find({});
     res.status(200).send(services);
   } catch (error) {
     next(error);

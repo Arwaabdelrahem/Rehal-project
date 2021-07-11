@@ -2,7 +2,7 @@ const { Booking } = require("../models/Booking");
 
 exports.getAll = async (req, res, next) => {
   try {
-    const bookings = await Booking.paginate({ user: req.user.id });
+    const bookings = await Booking.find({ user: req.user.id });
     res.status(200).send(bookings);
   } catch (error) {
     next(error);
