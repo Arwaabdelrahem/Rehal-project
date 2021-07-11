@@ -12,7 +12,7 @@ exports.getPlacesInCity = async (req, res, next) => {
     const city = await City.findById(req.params.cityId).populate("allRates");
     if (!city) return res.status(404).send("City not found");
 
-    const places = await Place.paginate({ city: req.params.cityId });
+    const places = await Place.find({ city: req.params.cityId });
     res.status(200).send(places);
   } catch (error) {
     next(error);
