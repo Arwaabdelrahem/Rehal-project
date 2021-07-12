@@ -19,7 +19,7 @@ module.exports = function (app) {
   app.use("/cities", cities);
   app.use("/services", services);
   app.use("/places", places);
-  app.use(bookings);
+  app.use("/bookings", bookings);
   app.use("/comments", comments);
   app.use("/rates", rates);
   app.use("/notifications", notifications);
