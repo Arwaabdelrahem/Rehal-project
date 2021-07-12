@@ -4,7 +4,7 @@ const _ = require("lodash");
 const { User } = require("../models/User");
 const { Notification } = require("../models/Notification");
 
-exports.countComments = async (req, res, next) => {
+exports.countDocsToday = async (req, res, next) => {
   try {
     const today = new Date(
       new Date().getFullYear(),
