@@ -157,25 +157,19 @@ exports.savedOverall = async (req, res, next) => {
 
 exports.savedRate = async (req, res, next) => {
   const user = await User.aggregate([
-    // { $match: { id: id } },
-    { $lookup: {
+    { $match: { _id: req.user._id } },
+    { $project: { _id:1 , savedPlaces: 1}},
+    {
+      $lookup: {
         from: "places",
         localField: "savedPlaces",
         foreignField: "_id",
-        as: "saved"
-      }},
-    { $unwind: "$savedPlaces" },
-    { $project: { _id: 1, rates: "$saved.rating" }},
-    {
-      $group: {
-        _id: "$_id",
-        highestRate: { $max: "$rates" },
+        as: "savedPlaces",
       },
     },
-    { $match: { _id: parseInt(req.user.id)}},
-    { $sort: { highestRate: 1 } },
+    { $unwind: "$savedPlaces"},
+    { $sort: { "savedPlaces.rating":-1 }}
   ]);
-  console.log(user);
   if (!user) return res.status(404).send("User not found");
 
   res.status(200).send(user)
