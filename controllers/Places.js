@@ -185,15 +185,15 @@ exports.editPlace = async (req, res, next) => {
     delete req.body.city;
     delete req.body.service;
 
-    let location = {
-      type: "Point",
-      coordinates: [req.body.lng, req.body.lat],
-    };
+    if (req.body.lng || req.body.lat) {
+      req.body.location = {
+        coordinates: [req.body.lng, req.body.lat],
+      };
+    }
 
     await place
       .set({
         ...req.body,
-        location: location,
       })
       .save();
     if (req.files.length !== 0) fs.unlinkSync(req.files[0].path);
