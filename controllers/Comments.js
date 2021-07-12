@@ -4,6 +4,23 @@ const _ = require("lodash");
 const { User } = require("../models/User");
 const { Notification } = require("../models/Notification");
 
+exports.countComments = async (req, res, next) => {
+  try {
+    const today = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      new Date().getDate()
+    );
+    const comments = await Comment.find({
+      createdAt: { $gte: today },
+    });
+
+    res.status(200).send({ comments });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.fetchComment = async (req, res, next) => {
   let place, comment, type;
   const path = req.route.path.split("/");

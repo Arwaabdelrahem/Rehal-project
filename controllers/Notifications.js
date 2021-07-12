@@ -2,6 +2,23 @@ const { Notification } = require("../models/Notification");
 const _ = require("lodash");
 const { User } = require("../models/User");
 
+exports.countDocsToday = async (req, res, next) => {
+  try {
+    const today = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      new Date().getDate()
+    );
+    const notifications = await Notification.find({
+      createdAt: { $gte: today },
+    });
+
+    res.status(200).send({ notifications });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.fetchAll = async (req, res, next) => {
   const user = req.user;
   //paginate

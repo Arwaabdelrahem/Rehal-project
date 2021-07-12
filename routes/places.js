@@ -5,6 +5,7 @@ const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 const router = express.Router();
 
+router.get("/All", placeControllers.countDocsToday);
 router.get("/cities/:cityId", placeControllers.getPlacesInCity);
 router.get("/best/cities/:cityId", placeControllers.bestPlaces);
 router.get("/:placeId", placeControllers.getById);

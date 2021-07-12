@@ -4,6 +4,7 @@ const multer = require("../middlewares/multer");
 const auth = require("../middlewares/auth");
 const router = express.Router();
 
+router.get("/All", commentsCntrl.countComments);
 router.get("/places/:placeId", commentsCntrl.fetchComment);
 router.get("/reply/:commentId", commentsCntrl.fetchComment);
 

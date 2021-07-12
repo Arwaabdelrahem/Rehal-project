@@ -3,8 +3,9 @@ const router = express.Router();
 const auth = require("../middlewares/auth");
 const notificationCntrl = require("../controllers/Notifications");
 
-router.use(auth);
+router.get("/All", notificationCntrl.countDocsToday);
 
+router.use(auth);
 // private end points
 router.get("/", notificationCntrl.fetchAll);
 router.post("/notify-clients", notificationCntrl.sendToAll);

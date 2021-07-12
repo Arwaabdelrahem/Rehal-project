@@ -7,6 +7,23 @@ const { Service } = require("../models/Service");
 const _ = require("lodash");
 const { Notification } = require("../models/Notification");
 
+exports.countDocsToday = async (req, res, next) => {
+  try {
+    const today = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      new Date().getDate()
+    );
+    const places = await Place.find({
+      createdAt: { $gte: today },
+    });
+
+    res.status(200).send({ places });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getPlacesInCity = async (req, res, next) => {
   try {
     const city = await City.findById(req.params.cityId);

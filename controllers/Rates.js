@@ -1,6 +1,23 @@
 const { Place } = require("../models/Place");
 const { Rate } = require("../models/Rate");
 
+exports.countDocsToday = async (req, res, next) => {
+  try {
+    const today = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      new Date().getDate()
+    );
+    const rates = await Rate.find({
+      createdAt: { $gte: today },
+    });
+
+    res.status(200).send({ rates });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getAll = async (req, res, next) => {
   try {
     let rates = await Rate.find({ place: req.params.placeId })
