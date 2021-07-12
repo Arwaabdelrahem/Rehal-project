@@ -68,6 +68,7 @@ placeSchema.set("toJSON", {
       id: doc.id,
       name: doc.name,
       address: doc.address,
+      description: doc.description,
       rating: doc.rating,
       reviews: doc.reviews,
       allRates: doc.allRates,
