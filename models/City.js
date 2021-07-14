@@ -22,6 +22,7 @@ const citySchema = mongoose.Schema(
       {
         type: Number,
         ref: "Service",
+        autopopulate: { select: "name image" },
       },
     ],
   },
@@ -44,6 +45,7 @@ citySchema.set("toJSON", {
 });
 
 citySchema.plugin(pagination);
+citySchema.plugin(require("mongoose-autopopulate"));
 citySchema.plugin(mongooseAutoIncrement.plugin, { model: "City", startAt: 1 });
 
 const City = mongoose.model("City", citySchema);
