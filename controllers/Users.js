@@ -189,7 +189,7 @@ exports.savePlaces = async (req, res, next) => {
     if (!place) return res.status(404).send("Place not found");
 
     const saved = _.findKey(req.user.savedPlaces, (s) => {
-      if (s.toString() === place._id.toString()) return "index";
+      if (s.id.toString() === place._id.toString()) return "index";
     });
 
     if (saved) {
@@ -201,6 +201,7 @@ exports.savePlaces = async (req, res, next) => {
     req.user.savedPlaces.push(place._id);
     await req.user.save();
     res.status(200).send(req.user);
+  
   } catch (error) {
     next(error);
   }
