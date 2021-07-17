@@ -106,7 +106,7 @@ exports.nearestPlaces = async (req, res, next) => {
     let places = await Place.find({
       location: {
         $near: {
-          $maxDistance: 1500,
+          $maxDistance: 1700,
           $geometry: {
             type: req.user.location.type,
             coordinates: req.user.location.coordinates,
