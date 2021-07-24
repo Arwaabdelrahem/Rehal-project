@@ -67,7 +67,7 @@ exports.addServiceToCity = async (req, res, next) => {
 
     const exist = _.findKey(city.services, (s) => {
       console.log(s);
-      if (s.toString() === service._id.toString()) return "index";
+      if (s._id.toString() === service._id.toString()) return "index";
     });
     if (exist) return res.status(400).send("Service already exists");
 
